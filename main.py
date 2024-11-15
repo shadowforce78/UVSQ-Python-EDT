@@ -84,7 +84,7 @@ class MainApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Emploi du Temps - Visualisation")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setGeometry(100, 100, 1300, 800)
 
         # Récupération des données
         self.data = fetch_and_format_data()
@@ -103,15 +103,19 @@ class MainApp(QMainWindow):
         # Tableau pour l'emploi du temps
         table = QTableWidget(self)
 
-        # 4 colonnes par heure x 12 heures = 48 lignes (8h -> 20h)
-        table.setRowCount(48)
-        table.setColumnCount(7)  # Lundi à Dimanche
-        table.setHorizontalHeaderLabels(["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"])
+        # 4 colonnes par heure x 11 heures = 44 lignes (8h -> 19h)
+        table.setRowCount(44)
+        table.setColumnCount(5)  # Lundi à Vendredi
+        table.setHorizontalHeaderLabels(["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"])
         table.setVerticalHeaderLabels(
-            [f"{hour // 4}:{(hour % 4) * 15:02d}" for hour in range(32, 80)]  # 8h à 20h (15 min)
+            [f"{hour // 4}:{(hour % 4) * 15:02d}" for hour in range(32, 76)]  # 8h à 19h (15 min)
         )
         table.setEditTriggers(QTableWidget.NoEditTriggers)  # Empêche l'édition
         table.setAlternatingRowColors(True)
+
+        # Ajuster la taille des cellules
+        table.verticalHeader().setDefaultSectionSize(20)  # Réduit la hauteur des lignes
+        table.horizontalHeader().setDefaultSectionSize(250)  # Réduit la largeur des colonnes
 
         # Remplir le tableau
         self.populate_table(table)
@@ -126,8 +130,6 @@ class MainApp(QMainWindow):
             "Wednesday": 2,
             "Thursday": 3,
             "Friday": 4,
-            "Saturday": 5,
-            "Sunday": 6,
         }
 
         for day, events in self.data.items():
