@@ -16,7 +16,7 @@ body = {
     "end": "2024-11-16",
     "resType": 103,
     "calView": "agendaWeek",
-    "federationIds": ["MMI1-A2"],
+    "federationIds": ["INF1-b2"],
     "colourScheme": 3,
 }
 
