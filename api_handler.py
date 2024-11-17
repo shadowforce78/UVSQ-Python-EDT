@@ -43,6 +43,7 @@ def format_events(events):
             "Type": event["eventCategory"],
             "Site": ", ".join(event["sites"]) if event["sites"] else "Non spécifié",
             "Couleur": event["backgroundColor"],
+            "Id" : event["id"]
         }
 
         # Classement par jour
