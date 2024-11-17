@@ -24,12 +24,11 @@ def format_events(events):
     formatted_data = {}
 
     for event in events:
-        # Conversion des dates au format lisible
         start_time = datetime.datetime.fromisoformat(event["start"])
         end_time = datetime.datetime.fromisoformat(event["end"])
 
-        # Extraction des infos principales
         event_info = {
+            "ID": event["id"],  # Ajouter l'ID de l'événement
             "Début": start_time.strftime("%H:%M"),
             "Fin": end_time.strftime("%H:%M"),
             "Description": event["description"]
@@ -43,10 +42,8 @@ def format_events(events):
             "Type": event["eventCategory"],
             "Site": ", ".join(event["sites"]) if event["sites"] else "Non spécifié",
             "Couleur": event["backgroundColor"],
-            "Id" : event["id"]
         }
 
-        # Classement par jour
         date_str = start_time.strftime("%Y-%m-%d")
         if date_str not in formatted_data:
             formatted_data[date_str] = []
@@ -55,6 +52,34 @@ def format_events(events):
 
     return formatted_data
 
+def fetch_event_details(event_id):
+    """
+    Récupère les détails d'un événement donné son ID.
+    """
+    endpoint = "https://edt.iut-velizy.uvsq.fr/Home/GetSideBarEvent"
+    body = {"eventId": event_id}
+
+    response = requests.post(endpoint, headers=headers, data=body)
+    if response.status_code == 200:
+        return json.loads(response.text)
+    else:
+        print(f"Erreur lors de la récupération des détails de l'événement {event_id}: {response.status_code}")
+        return None
+
+
+
+def getData(id):
+    endPointUrlData = "https://edt.iut-velizy.uvsq.fr/Home/GetSideBarEvent"
+    headers = {
+        "accept": "*/*",
+        "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    }
+
+    body = f"eventId={id}"
+
+    response = requests.post(endPointUrlData, headers=headers, data=body)
+    return response
 
 def fetch_and_format_data():
     response = requests.post(endPointUrl, headers=headers, data=body)

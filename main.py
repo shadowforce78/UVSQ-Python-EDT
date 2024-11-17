@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from api_handler import fetch_and_format_data
+from api_handler import fetch_and_format_data, getData
 from table_widget import MainApp
 
 if __name__ == "__main__":
