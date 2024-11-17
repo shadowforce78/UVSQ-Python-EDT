@@ -16,7 +16,7 @@ body = {
     "end": "2024-11-16",
     "resType": 103,
     "calView": "agendaWeek",
-    "federationIds": ["INF1-B2"],
+    "federationIds": ["MMI1-A2"],
     "colourScheme": 3,
 }
 
@@ -61,9 +61,13 @@ def fetch_event_details(event_id):
     endpoint = "https://edt.iut-velizy.uvsq.fr/Home/GetSideBarEvent"
     body = {"eventId": event_id}
 
+    # print(f"Fetching details for event ID: {event_id}")
     response = requests.post(endpoint, headers=headers, data=body)
     if response.status_code == 200:
         return json.loads(response.text)
+    elif response.status_code == 500:
+        print(f"Erreur serveur : {response.text}")  # Ou un autre attribut contenant les détails
+        return None
     else:
         print(
             f"Erreur lors de la récupération des détails de l'événement {event_id}: {response.status_code}"
