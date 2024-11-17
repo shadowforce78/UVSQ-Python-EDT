@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QWidget,
     QVBoxLayout,
+    QHeaderView  # Importer QHeaderView ici
 )
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtCore import Qt
@@ -16,7 +17,7 @@ class MainApp(QMainWindow):
     def __init__(self, data):
         super().__init__()
         self.setWindowTitle("Emploi du Temps - Visualisation")
-        self.setGeometry(100, 100, 1300, 800)
+        self.setGeometry(100, 100, 1300, 800)  # Fenêtre de base
         self.data = data
         self.initUI()
 
@@ -37,12 +38,33 @@ class MainApp(QMainWindow):
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.setAlternatingRowColors(True)
         self.table.verticalHeader().setDefaultSectionSize(20)
-        self.table.horizontalHeader().setDefaultSectionSize(250)
+
+        # Adapter la taille des colonnes à la largeur de la fenêtre
+        self.table.horizontalHeader().setStretchLastSection(True)
+        for col in range(self.table.columnCount()):
+            self.table.horizontalHeader().setSectionResizeMode(col, QHeaderView.Stretch)  # Utiliser QHeaderView
 
         self.table.cellClicked.connect(self.on_cell_click)  # Connecter le clic
         self.populate_table(self.table)
 
         layout.addWidget(self.table)
+
+    def resizeEvent(self, event):
+        # Ce bloc gère le redimensionnement de la fenêtre
+        self.adjust_table_size()
+        super().resizeEvent(event)
+
+    def adjust_table_size(self):
+        """
+        Ajuste la taille des colonnes en fonction de la taille de la fenêtre.
+        """
+        total_width = self.table.viewport().width()
+        column_count = self.table.columnCount()
+
+        # Ajuste la taille de chaque colonne de manière égale
+        column_width = total_width // column_count
+        for col in range(column_count):
+            self.table.setColumnWidth(col, column_width)
 
     def populate_table(self, table):
         # Mapping des jours de la semaine avec leurs indices de colonne
@@ -97,10 +119,6 @@ class MainApp(QMainWindow):
                 table.setItem(
                     start_row, column, cell
                 )  # Placement de la cellule dans la table
-
-                # print(
-                #     f"Inserting event {event_id} at row {start_row}, column {column}: {description}"
-                # )
 
     def on_cell_click(self, row, column):
         """
