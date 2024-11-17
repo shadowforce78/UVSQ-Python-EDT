@@ -26,7 +26,7 @@ start = "2024-11-11"
 end = "2024-11-16"
 resType = 103
 calView = "agendaWeek"
-federationIds = ["INF1-B"]
+federationIds = ["INF1-B2"]
 colourScheme = 3
 
 body = {
@@ -51,11 +51,14 @@ def format_events(events):
         event_info = {
             "Début": start_time.strftime("%H:%M"),
             "Fin": end_time.strftime("%H:%M"),
-            "Description": event["description"].replace("<br />", "\n")
+            "Description": event["description"]
+            .replace("<br />", "\n")
             .replace("&39;", "'")
             .strip(),
             "Professeur(s)": event["description"].split("<br />")[0],  # Prof principal
-            "Module(s)": ", ".join(event["modules"]) if event["modules"] else "Non spécifié",
+            "Module(s)": (
+                ", ".join(event["modules"]) if event["modules"] else "Non spécifié"
+            ),
             "Type": event["eventCategory"],
             "Site": ", ".join(event["sites"]) if event["sites"] else "Non spécifié",
             "Couleur": event["backgroundColor"],
@@ -106,16 +109,22 @@ class MainApp(QMainWindow):
         # 4 colonnes par heure x 11 heures = 44 lignes (8h -> 19h)
         table.setRowCount(44)
         table.setColumnCount(5)  # Lundi à Vendredi
-        table.setHorizontalHeaderLabels(["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"])
+        table.setHorizontalHeaderLabels(
+            ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
+        )
         table.setVerticalHeaderLabels(
-            [f"{hour // 4}:{(hour % 4) * 15:02d}" for hour in range(32, 76)]  # 8h à 19h (15 min)
+            [
+                f"{hour // 4}:{(hour % 4) * 15:02d}" for hour in range(32, 76)
+            ]  # 8h à 19h (15 min)
         )
         table.setEditTriggers(QTableWidget.NoEditTriggers)  # Empêche l'édition
         table.setAlternatingRowColors(True)
 
         # Ajuster la taille des cellules
         table.verticalHeader().setDefaultSectionSize(20)  # Réduit la hauteur des lignes
-        table.horizontalHeader().setDefaultSectionSize(250)  # Réduit la largeur des colonnes
+        table.horizontalHeader().setDefaultSectionSize(
+            250
+        )  # Réduit la largeur des colonnes
 
         # Remplir le tableau
         self.populate_table(table)
@@ -154,7 +163,9 @@ class MainApp(QMainWindow):
 
                 # Appliquer la couleur
                 cell.setBackground(QColor(event["Couleur"]))
-                table.setSpan(start_row, column, duration, 1)  # Étendre sur plusieurs lignes
+                table.setSpan(
+                    start_row, column, duration, 1
+                )  # Étendre sur plusieurs lignes
                 table.setItem(start_row, column, cell)
 
 
