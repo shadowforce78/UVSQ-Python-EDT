@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QWidget,
     QVBoxLayout,
-    QHeaderView  # Importer QHeaderView ici
+    QHeaderView
 )
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtCore import Qt
