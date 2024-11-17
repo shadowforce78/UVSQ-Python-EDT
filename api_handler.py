@@ -20,6 +20,7 @@ body = {
     "colourScheme": 3,
 }
 
+
 def format_events(events):
     formatted_data = {}
 
@@ -52,6 +53,7 @@ def format_events(events):
 
     return formatted_data
 
+
 def fetch_event_details(event_id):
     """
     Récupère les détails d'un événement donné son ID.
@@ -63,23 +65,11 @@ def fetch_event_details(event_id):
     if response.status_code == 200:
         return json.loads(response.text)
     else:
-        print(f"Erreur lors de la récupération des détails de l'événement {event_id}: {response.status_code}")
+        print(
+            f"Erreur lors de la récupération des détails de l'événement {event_id}: {response.status_code}"
+        )
         return None
 
-
-
-def getData(id):
-    endPointUrlData = "https://edt.iut-velizy.uvsq.fr/Home/GetSideBarEvent"
-    headers = {
-        "accept": "*/*",
-        "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
-        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-    }
-
-    body = f"eventId={id}"
-
-    response = requests.post(endPointUrlData, headers=headers, data=body)
-    return response
 
 def fetch_and_format_data():
     response = requests.post(endPointUrl, headers=headers, data=body)
