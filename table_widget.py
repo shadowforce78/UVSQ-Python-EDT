@@ -9,7 +9,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHeaderView,
     QPushButton,
-    QComboBox
+    QComboBox,
+    QAction
 )
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtCore import Qt
@@ -84,6 +85,11 @@ class MainApp(QMainWindow):
         self.next_week_button.clicked.connect(self.load_next_week)
         self.current_week_button.clicked.connect(self.load_current_week)  # Connect new button
         self.class_selector.currentIndexChanged.connect(self.change_class)
+
+        self.dark_mode_action = QAction("Mode Sombre", self)
+        self.dark_mode_action.setCheckable(True)
+        self.dark_mode_action.triggered.connect(self.toggle_dark_mode)
+        self.menuBar().addAction(self.dark_mode_action)
 
         layout.addWidget(self.prev_week_button)
         layout.addWidget(self.next_week_button)
@@ -234,3 +240,31 @@ class MainApp(QMainWindow):
     def load_current_week(self):
         self.current_week_start = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
         self.load_data()
+
+    def toggle_dark_mode(self):
+        if self.dark_mode_action.isChecked():
+            self.setStyleSheet("""
+                QMainWindow {
+                    background-color: #2e2e2e;
+                    color: #ffffff;
+                }
+                QTableWidget {
+                    background-color: #3e3e3e;
+                    color: #ffffff;
+                    alternate-background-color: #4e4e4e;
+                }
+                QHeaderView::section {
+                    background-color: #3e3e3e;
+                    color: #ffffff;
+                }
+                QPushButton {
+                    background-color: #3e3e3e;
+                    color: #ffffff;
+                }
+                QComboBox {
+                    background-color: #3e3e3e;
+                    color: #ffffff;
+                }
+            """)
+        else:
+            self.setStyleSheet("")
