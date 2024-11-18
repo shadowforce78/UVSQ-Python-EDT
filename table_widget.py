@@ -79,12 +79,15 @@ class MainApp(QMainWindow):
             "GEII1-TDA1", "GEII1-TDA2", "GEII1-TDB1"
             ])  # Example classes
 
+        self.current_week_button = QPushButton("Semaine Actuelle", self)  # New button
         self.prev_week_button.clicked.connect(self.load_previous_week)
         self.next_week_button.clicked.connect(self.load_next_week)
+        self.current_week_button.clicked.connect(self.load_current_week)  # Connect new button
         self.class_selector.currentIndexChanged.connect(self.change_class)
 
         layout.addWidget(self.prev_week_button)
         layout.addWidget(self.next_week_button)
+        layout.addWidget(self.current_week_button)  # Add new button to layout
         layout.addWidget(self.class_selector)
         layout.addWidget(self.table)
 
@@ -227,3 +230,7 @@ class MainApp(QMainWindow):
         end_date = (self.current_week_start + datetime.timedelta(days=6)).strftime("%Y-%m-%d")
         self.data = fetch_and_format_data(start_date, end_date, self.current_class)
         self.populate_table(self.table)
+
+    def load_current_week(self):
+        self.current_week_start = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
+        self.load_data()
