@@ -12,8 +12,8 @@ headers = {
 }
 
 body = {
-    "start": "2024-11-11",
-    "end": "2024-11-16",
+    "start": "2024-11-18",
+    "end": "2024-11-24",
     "resType": 103,
     "calView": "agendaWeek",
     "federationIds": ["INF1-b2"],
