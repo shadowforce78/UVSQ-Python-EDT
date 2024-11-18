@@ -1,3 +1,5 @@
+import sys
+import os
 from PyQt5.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
@@ -5,13 +7,23 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QWidget,
     QVBoxLayout,
-    QHeaderView
+    QHeaderView,
+    QPushButton,
+    QComboBox
 )
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtCore import Qt
 import datetime
-from api_handler import fetch_event_details
+from api_handler import fetch_event_details, fetch_and_format_data
 
+class SuppressQtWarnings:
+    def __enter__(self):
+        self._stderr = sys.stderr
+        sys.stderr = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stderr.close()
+        sys.stderr = self._stderr
 
 class MainApp(QMainWindow):
     def __init__(self, data):
@@ -19,6 +31,8 @@ class MainApp(QMainWindow):
         self.setWindowTitle("Emploi du Temps - Visualisation")
         self.setGeometry(100, 100, 1300, 800)  # Fenêtre de base
         self.data = data
+        self.current_week_start = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
+        self.current_class = "INF1-b2"  # Classe par défaut
         self.initUI()
 
     def initUI(self):
@@ -47,6 +61,31 @@ class MainApp(QMainWindow):
         self.table.cellClicked.connect(self.on_cell_click)  # Connecter le clic
         self.populate_table(self.table)
 
+        self.prev_week_button = QPushButton("Semaine Précédente", self)
+        self.next_week_button = QPushButton("Semaine Suivante", self)
+        self.class_selector = QComboBox(self)
+        self.class_selector.addItems([
+            "INF1-A1", "INF1-A2", "INF1-B1", 
+            "INF1-B2", "INF1-C1", "INF1-C2", 
+            "INF2-FA", "INF2-FI-A", "INF2-FI-B",
+
+            "MMI1-A1", "MMI1-A2", "MMI1-B1", 
+            "MMI1-B2", "MMI2-A1", "MMI2-A2", 
+            "MMI2-B1", "MMI2-B2",
+
+            "RT1-FI-A1", "RT1-FI-A2", 
+            "RT1-FI-B1", "RT1-FI-B2",
+
+            "GEII1-TDA1", "GEII1-TDA2", "GEII1-TDB1"
+            ])  # Example classes
+
+        self.prev_week_button.clicked.connect(self.load_previous_week)
+        self.next_week_button.clicked.connect(self.load_next_week)
+        self.class_selector.currentIndexChanged.connect(self.change_class)
+
+        layout.addWidget(self.prev_week_button)
+        layout.addWidget(self.next_week_button)
+        layout.addWidget(self.class_selector)
         layout.addWidget(self.table)
 
     def resizeEvent(self, event):
@@ -67,6 +106,21 @@ class MainApp(QMainWindow):
             self.table.setColumnWidth(col, column_width)
 
     def populate_table(self, table):
+        table.clearContents()
+        table.setRowCount(44)
+        table.setColumnCount(5)
+        table.setHorizontalHeaderLabels(
+            ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
+        )
+        table.setVerticalHeaderLabels(
+            [f"{hour // 4}:{(hour % 4) * 15:02d}" for hour in range(32, 76)]
+        )
+
+        # Clear existing spans
+        for row in range(table.rowCount()):
+            for col in range(table.columnCount()):
+                table.setSpan(row, col, 1, 1)
+
         # Mapping des jours de la semaine avec leurs indices de colonne
         day_to_column = {
             "Monday": 0,
@@ -113,12 +167,10 @@ class MainApp(QMainWindow):
                 )  # On stocke l'ID de l'événement dans la cellule
 
                 # Insertion de la cellule dans la bonne ligne et colonne, en tenant compte de la durée de l'événement
-                table.setSpan(
-                    start_row, column, duration, 1
-                )  # Merge cells pour couvrir toute la durée
-                table.setItem(
-                    start_row, column, cell
-                )  # Placement de la cellule dans la table
+                with SuppressQtWarnings():
+                    if duration > 1:
+                        table.setSpan(start_row, column, duration, 1)  # Merge cells pour couvrir toute la durée
+                table.setItem(start_row, column, cell)  # Placement de la cellule dans la table
 
     def on_cell_click(self, row, column):
         """
@@ -130,7 +182,7 @@ class MainApp(QMainWindow):
 
         event_id = cell.data(
             Qt.UserRole
-        )  # Récupérer l'ID de l'événement à partir de la cellule
+        )  # Récupérer l'ID de l'événement stocké dans la cellule
         if not event_id:
             return  # Aucun ID, donc on ne fait rien
 
@@ -157,3 +209,21 @@ class MainApp(QMainWindow):
         )
 
         QMessageBox.information(self, "Détails du cours", message)
+
+    def load_previous_week(self):
+        self.current_week_start -= datetime.timedelta(days=7)
+        self.load_data()
+
+    def load_next_week(self):
+        self.current_week_start += datetime.timedelta(days=7)
+        self.load_data()
+
+    def change_class(self):
+        self.current_class = self.class_selector.currentText()
+        self.load_data()
+
+    def load_data(self):
+        start_date = self.current_week_start.strftime("%Y-%m-%d")
+        end_date = (self.current_week_start + datetime.timedelta(days=6)).strftime("%Y-%m-%d")
+        self.data = fetch_and_format_data(start_date, end_date, self.current_class)
+        self.populate_table(self.table)

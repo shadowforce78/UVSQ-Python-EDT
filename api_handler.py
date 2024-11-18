@@ -11,15 +11,6 @@ headers = {
     "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 }
 
-body = {
-    "start": "2024-11-18",
-    "end": "2024-11-24",
-    "resType": 103,
-    "calView": "agendaWeek",
-    "federationIds": ["INF1-b2"],
-    "colourScheme": 3,
-}
-
 
 def make_body(start_date, end_date, federationIds):
 
@@ -92,7 +83,8 @@ def fetch_event_details(event_id):
         return None
 
 
-def fetch_and_format_data():
+def fetch_and_format_data(start_date, end_date, class_name):
+    body = make_body(start_date, end_date, class_name)
     response = requests.post(endPointUrl, headers=headers, data=body)
     formatted_response = json.loads(response.text)
     return format_events(formatted_response)
