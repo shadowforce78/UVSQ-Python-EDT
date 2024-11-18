@@ -21,6 +21,21 @@ body = {
 }
 
 
+def make_body(start_date, end_date, federationIds):
+
+    # FederationIds to array
+    federationIds = [federationIds]
+    body = {
+        "start": start_date,
+        "end": end_date,
+        "resType": 103,
+        "calView": "agendaWeek",
+        "federationIds": federationIds,
+        "colourScheme": 3,
+    }
+    return body
+
+
 def format_events(events):
     formatted_data = {}
 
@@ -66,7 +81,9 @@ def fetch_event_details(event_id):
     if response.status_code == 200:
         return json.loads(response.text)
     elif response.status_code == 500:
-        print(f"Erreur serveur : {response.text}")  # Ou un autre attribut contenant les détails
+        print(
+            f"Erreur serveur : {response.text}"
+        )  # Ou un autre attribut contenant les détails
         return None
     else:
         print(
