@@ -16,6 +16,7 @@ from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtCore import Qt
 import datetime
 from api_handler import fetch_event_details, fetch_and_format_data
+from config import load_config, save_config
 
 class SuppressQtWarnings:
     def __enter__(self):
@@ -33,8 +34,13 @@ class MainApp(QMainWindow):
         self.setGeometry(100, 100, 1300, 800)  # Fenêtre de base
         self.data = data
         self.current_week_start = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
-        self.current_class = "INF1-b2"  # Classe par défaut
+        self.config = load_config()
+        self.current_class = self.config.get("class", "INF1-b2")
+        self.dark_mode_enabled = self.config.get("dark_mode", False)
         self.initUI()
+        if self.dark_mode_enabled:
+            self.dark_mode_action.setChecked(True)
+            self.toggle_dark_mode()
 
     def initUI(self):
         central_widget = QWidget(self)
@@ -96,6 +102,7 @@ class MainApp(QMainWindow):
         layout.addWidget(self.current_week_button)  # Add new button to layout
         layout.addWidget(self.class_selector)
         layout.addWidget(self.table)
+        self.class_selector.setCurrentText(self.current_class)
 
     def resizeEvent(self, event):
         # Ce bloc gère le redimensionnement de la fenêtre
@@ -229,6 +236,8 @@ class MainApp(QMainWindow):
 
     def change_class(self):
         self.current_class = self.class_selector.currentText()
+        self.config["class"] = self.current_class
+        save_config(self.config)
         self.load_data()
 
     def load_data(self):
@@ -242,7 +251,10 @@ class MainApp(QMainWindow):
         self.load_data()
 
     def toggle_dark_mode(self):
-        if self.dark_mode_action.isChecked():
+        self.dark_mode_enabled = self.dark_mode_action.isChecked()
+        self.config["dark_mode"] = self.dark_mode_enabled
+        save_config(self.config)
+        if self.dark_mode_enabled:
             self.setStyleSheet("""
                 QMainWindow {
                     background-color: #2e2e2e;

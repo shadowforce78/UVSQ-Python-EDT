@@ -5,3 +5,4 @@ dist
 main.spec
 data.json
 certificat.pfx
+user_config.json
