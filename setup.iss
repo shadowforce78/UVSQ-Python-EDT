@@ -1,6 +1,6 @@
 [Setup]
 AppName=UVSQ-EDT-APP
-AppVersion=1.0
+AppVersion=1.1
 DefaultDirName={pf}\UVSQ-EDT-APP
 OutputDir=dist
 SetupIconFile=logo.ico
