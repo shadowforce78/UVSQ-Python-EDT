@@ -1,4 +1,7 @@
 .venv
+beeware-venv
+logs
+src
 __pycache__
 build
 dist
