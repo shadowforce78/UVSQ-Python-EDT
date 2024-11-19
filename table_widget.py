@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QPushButton,
     QComboBox,
-    QAction
+    QAction,
+    QLineEdit
 )
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtCore import Qt
@@ -97,10 +98,15 @@ class MainApp(QMainWindow):
         self.dark_mode_action.triggered.connect(self.toggle_dark_mode)
         self.menuBar().addAction(self.dark_mode_action)
 
+        self.week_display = QLineEdit(self)
+        self.week_display.setReadOnly(True)
+        self.update_week_display()
+
         layout.addWidget(self.prev_week_button)
         layout.addWidget(self.next_week_button)
         layout.addWidget(self.current_week_button)  # Add new button to layout
         layout.addWidget(self.class_selector)
+        layout.addWidget(self.week_display)  # Add week display to layout
         layout.addWidget(self.table)
         self.class_selector.setCurrentText(self.current_class)
 
@@ -229,10 +235,12 @@ class MainApp(QMainWindow):
     def load_previous_week(self):
         self.current_week_start -= datetime.timedelta(days=7)
         self.load_data()
+        self.update_week_display()
 
     def load_next_week(self):
         self.current_week_start += datetime.timedelta(days=7)
         self.load_data()
+        self.update_week_display()
 
     def change_class(self):
         self.current_class = self.class_selector.currentText()
@@ -245,10 +253,17 @@ class MainApp(QMainWindow):
         end_date = (self.current_week_start + datetime.timedelta(days=6)).strftime("%Y-%m-%d")
         self.data = fetch_and_format_data(start_date, end_date, self.current_class)
         self.populate_table(self.table)
+        self.update_week_display()
 
     def load_current_week(self):
         self.current_week_start = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
         self.load_data()
+        self.update_week_display()
+
+    def update_week_display(self):
+        start_date = self.current_week_start.strftime("%d %B %Y")
+        end_date = (self.current_week_start + datetime.timedelta(days=4)).strftime("%d %B %Y")
+        self.week_display.setText(f"Semaine du {start_date} au {end_date}")
 
     def toggle_dark_mode(self):
         self.dark_mode_enabled = self.dark_mode_action.isChecked()
@@ -274,6 +289,10 @@ class MainApp(QMainWindow):
                     color: #ffffff;
                 }
                 QComboBox {
+                    background-color: #3e3e3e;
+                    color: #ffffff;
+                }
+                QLineEdit {
                     background-color: #3e3e3e;
                     color: #ffffff;
                 }
