@@ -183,7 +183,10 @@ class MainApp(QMainWindow):
 
                 # Création de la cellule
                 cell = QTableWidgetItem(description)
-                cell.setBackground(QColor(event["Couleur"]))  # Couleur de l'événement
+                cell_color = QColor(event["Couleur"])
+                if self.dark_mode_enabled:
+                    cell_color = cell_color.darker(150)  # Darken the color for dark mode
+                cell.setBackground(cell_color)  # Couleur de l'événement
                 cell.setData(
                     Qt.UserRole, event_id
                 )  # On stocke l'ID de l'événement dans la cellule
